@@ -1,0 +1,9 @@
+# ignore everything...
+*
+
+# except
+!.gitignore
+!raw-mount.ps1
+!raw-umount.ps1
+!LICENSE
+!README.md
