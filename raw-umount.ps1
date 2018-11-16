@@ -42,12 +42,12 @@ new-item -path "$env:temp" -name "diskpart_umount_script.txt" -itemtype file -fo
 add-content -path "$env:temp\diskpart_umount_script.txt" "SELECT VDISK FILE=$imageFile"
 add-content -path "$env:temp\diskpart_umount_script.txt" "DETACH VDISK"
 
-diskpart /s $env:temp\diskpart_umount_script.txt
+#diskpart /s $env:temp\diskpart_umount_script.txt
 
 Remove-Item -Path "$env:temp\diskpart_umount_script.txt" 
 
 # wait until file no longer used...
-Start-Sleep 5
+#Start-Sleep 5
 
 #truncate vhd footer at the end of the file
 
@@ -55,18 +55,31 @@ if (-not $preserveVhdFooter) {
 
     Write-Verbose "attempting to truncate vhd footer..."
 
-    $bytes = [System.IO.File]::ReadAllBytes($imageFile)
+    #$bytes = [System.IO.File]::ReadAllBytes($imageFile)
     
     $cookie = ( 0x63, 0x6F, 0x6E, 0x65, 0x63, 0x74, 0x69, 0x78 )
-    if ( ($bytes[-512..-505] -join ",") -eq ($cookie -join ",") ) {
-        
-        $writer = [System.IO.File]::OpenWrite("$($imageFile)_truncated")
-        $writer.Write($bytes, 0, ($bytes.Length - 512))
-        $writer.Close()
-    
-        if (-not $preserveVhdFile) {
-            Move-Item -Force -Path "$($imageFile)_truncated" -Destination $imageFile
-        }
+	
+	$fs = [IO.File]::OpenRead($imageFile)
+	
+	$fs.Seek(-512, 'End') | Out-Null
+	[byte[]]$buffer = @(0)*8
+	#for ($i = 0; $i -lt 8; $i++) {
+	#	$bytes += $fs.ReadByte()
+	#}
+	$fs.Read($buffer, 0, 8) | Out-Null
+	
+	Write-Verbose "$buffer"
+	
+    if ( ($buffer -join ",") -eq ($cookie -join ",") ) {
+		Write-Verbose "found vhd footer, truncating..."
+    #    
+    #    $writer = [System.IO.File]::OpenWrite("$($imageFile)_truncated")
+    #    $writer.Write($bytes, 0, ($bytes.Length - 512))
+    #    $writer.Close()
+    #
+    #    if (-not $preserveVhdFile) {
+    #        Move-Item -Force -Path "$($imageFile)_truncated" -Destination $imageFile
+    #    }
     } else {
         Write-Verbose "no vhd footer found! nothing truncated"
     }

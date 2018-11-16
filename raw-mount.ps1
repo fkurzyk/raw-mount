@@ -140,6 +140,6 @@ New-Item -Path "$env:temp" -Name "diskpart_mount_script.txt" -Itemtype file -For
 Add-Content -Path "$env:temp\diskpart_mount_script.txt" "SELECT VDISK FILE=$imageFile"
 Add-Content -Path "$env:temp\diskpart_mount_script.txt" "ATTACH VDISK"
 
-diskpart /s $env:temp\diskpart_mount_script.txt
+#diskpart /s $env:temp\diskpart_mount_script.txt
 
 Remove-Item -Path "$env:temp\diskpart_mount_script.txt"
