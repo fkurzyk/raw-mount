@@ -102,12 +102,11 @@ function substituteBytes {
 
 $fileLen = (Get-Item $imageFile).Length
 $fileLenBytes = [BitConverter]::GetBytes($fileLen)
-$sizeOffset = 40  # where 'original size' field starts
 
+$sizeOffset = 40  # where 'original size' field starts
 $vhdFooter = substituteBytes -targetBytes $vhdFooter -targetOffset $sizeOffset -inputLength 8 -inputBytes $fileLenBytes
 
 $sizeOffset = 48  # where 'current size' field starts
-
 $vhdFooter = substituteBytes -targetBytes $vhdFooter -targetOffset $sizeOffset -inputLength 8 -inputBytes $fileLenBytes
 
 #checksum
@@ -119,8 +118,8 @@ for ($i = 0; $i -lt $vhdFooter.length; $i++) {
 
 $checksum = (-bnot $checksum)
 $checksumBytes = [BitCOnverter]::GetBytes($checksum)
-$checksumOffset = 64  # where 'checksum' field starts
 
+$checksumOffset = 64  # where 'checksum' field starts
 $vhdFooter = substituteBytes -targetBytes $vhdFooter -targetOffset $checksumOffset -inputLength 4 -inputBytes $checksumBytes
 
 if ($preserveOriginalImageFile) {
@@ -140,6 +139,6 @@ New-Item -Path "$env:temp" -Name "diskpart_mount_script.txt" -Itemtype file -For
 Add-Content -Path "$env:temp\diskpart_mount_script.txt" "SELECT VDISK FILE=$imageFile"
 Add-Content -Path "$env:temp\diskpart_mount_script.txt" "ATTACH VDISK"
 
-#diskpart /s $env:temp\diskpart_mount_script.txt
+diskpart /s $env:temp\diskpart_mount_script.txt
 
 Remove-Item -Path "$env:temp\diskpart_mount_script.txt"
