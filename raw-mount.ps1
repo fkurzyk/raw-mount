@@ -122,6 +122,8 @@ $checksumBytes = [BitCOnverter]::GetBytes($checksum)
 $checksumOffset = 64  # where 'checksum' field starts
 $vhdFooter = substituteBytes -targetBytes $vhdFooter -targetOffset $checksumOffset -inputLength 4 -inputBytes $checksumBytes
 
+#process image file
+
 if ($preserveOriginalImageFile) {
     Write-Verbose "preserving original image file (without vhd footer)..."
     Copy-Item -Path $imageFile -Destination "$($imageFile)_original"
@@ -130,6 +132,11 @@ if ($preserveOriginalImageFile) {
 Write-Verbose "adding vhd footer to image file..."
 
 Add-Content -Path $imageFile -Value $vhdFooter -Encoding Byte
+
+Write-Verbose "adding .vhd extension to image filename..."
+
+Rename-Item -Path $imageFile -NewName "$($imageFile).vhd"
+$imageFile = "$($imageFile).vhd"
 
 #mount
 
